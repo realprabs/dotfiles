@@ -2,11 +2,6 @@
 
 DOTFILES=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 
-ITERM_CONFIG_DIR=$HOME/.config/iterm-config
-rm -rf $ITERM_CONFIG_DIR
-ln -s $DOTFILES/iterm2 $ITERM_CONFIG_DIR
-
 NVIM_CONFIG_DIR=$HOME/.config/nvim
 rm -rf $NVIM_CONFIG_DIR
 ln -s $DOTFILES/nvim $NVIM_CONFIG_DIR
-
