@@ -40,6 +40,8 @@ require("lazy").setup({
 	{ import = "prabs.plugins.cmp" },
 	-- Language servers
 	{ import = "prabs.plugins.lspconfig" },
-	-- Lint, format, diagnostics
-	{ import = "prabs.plugins.null-ls" },
+	-- Formatting
+	{ import = "prabs.plugins.conform" },
+	-- Linting
+	{ import = "prabs.plugins.lint" },
 })

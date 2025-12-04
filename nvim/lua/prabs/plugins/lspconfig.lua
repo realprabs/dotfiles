@@ -3,40 +3,70 @@ return {
 	dependencies = {
 		"williamboman/mason.nvim",
 		"williamboman/mason-lspconfig.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		"b0o/schemastore.nvim",
-		"folke/neodev.nvim",
+		{ "folke/lazydev.nvim", ft = "lua", opts = {} },
 	},
 	config = function()
 		-- Setup Mason to automatically install LSP servers
 		local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-		local default_setup = function(server)
-			require("lspconfig")[server].setup({
-				capabilities = lsp_capabilities,
-			})
-		end
-
 		require("mason").setup()
+
+		require("mason-tool-installer").setup({
+			ensure_installed = {
+				-- LSP servers
+				"lua-language-server",
+				"typescript-language-server",
+				"html-lsp",
+				"css-lsp",
+				"intelephense",
+				"ruby-lsp",
+				-- Formatters
+				"stylua",
+				"prettierd",
+				"rubocop",
+				"php-cs-fixer",
+				-- Linters
+				"eslint_d",
+				"phpstan",
+			},
+		})
+
 		require("mason-lspconfig").setup({
 			automatic_installation = true,
-			ensure_installed = {},
 			handlers = {
-				default_setup,
+				-- Default handler for all servers
+				function(server_name)
+					require("lspconfig")[server_name].setup({
+						capabilities = capabilities,
+					})
+				end,
+				-- Custom handler for jsonls
 				jsonls = function()
 					require("lspconfig").jsonls.setup({
 						capabilities = capabilities,
 						settings = {
 							json = {
 								schemas = require("schemastore").json.schemas(),
+								validate = { enable = true },
+							},
+						},
+					})
+				end,
+				-- Custom handler for lua_ls
+				lua_ls = function()
+					require("lspconfig").lua_ls.setup({
+						capabilities = capabilities,
+						settings = {
+							Lua = {
+								workspace = { checkThirdParty = false },
+								telemetry = { enable = false },
 							},
 						},
 					})
 				end,
 			},
-		})
-
-		require("neodev").setup({
-			library = { plugins = { "nvim-dap-ui" }, types = true },
 		})
 
 		-- Keymaps
@@ -47,8 +77,9 @@ return {
 		vim.keymap.set("n", "gi", ":Telescope lsp_implementations<CR>")
 		vim.keymap.set("n", "gr", ":Telescope lsp_references<CR>")
 		vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>")
+		vim.keymap.set({ "n", "i" }, "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
 		vim.keymap.set("n", "<Leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>")
-		vim.keymap.set("n", "<Leader>/", "<cmd>lua vim.lsp.buf.format({async = true})<CR>")
+		vim.keymap.set("n", "<Leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>")
 
 		-- Diagnostic configuration
 		vim.diagnostic.config({
